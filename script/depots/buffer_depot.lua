@@ -1,5 +1,8 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local drone_fuel_capacity = shared.drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
+local util = require("util")
 
 local request_spawn_timeout = 60
 
@@ -264,11 +267,7 @@ function buffer_depot:dispatch_drone(depot, count)
 end
 
 
-local distance = function(a, b)
-  local dx = a[1] - b[1]
-  local dy = a[2] - b[2]
-  return ((dx * dx) + (dy * dy)) ^ 0.5
-end
+local distance = util.distance
 
 local big = math.huge
 local min = math.min
@@ -297,7 +296,11 @@ function buffer_depot:make_request()
     if amount < minimum_size then
       return big
     end
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+      return big
+    end
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
