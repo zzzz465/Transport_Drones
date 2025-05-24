@@ -11,6 +11,36 @@ local settings =
   },
 
   {
+    type = "double-setting",
+    name = "base-truck-speed",
+    localised_name = "Base truck speed",
+    setting_type = "runtime-global",
+    default_value = 0.066,
+    minimum_value = 0.01,
+    maximum_value = 1
+  },
+
+  {
+    type = "int-setting",
+    name = "truck-departure-delay",
+    localised_name = "Truck dispatch delay (ticks)",
+    setting_type = "runtime-global",
+    default_value = 60,
+    minimum_value = 0,
+    maximum_value = 3600
+  },
+
+  {
+    type = "int-setting",
+    name = "max-truck-load-size",
+    localised_name = "Maximum truck load size",
+    setting_type = "runtime-global",
+    default_value = 100,
+    minimum_value = 1,
+    maximum_value = 5000
+  },
+
+  {
     type = "string-setting",
     name = "fuel-fluid",
     localised_name = "Transport drone fuel",
@@ -25,6 +55,16 @@ local settings =
     setting_type = "startup",
     default_value = 50,
     minimum_value = 0,
+    maximum_value = 10000
+  },
+
+  {
+    type = "double-setting",
+    name = "drone-fuel-capacity",
+    localised_name = "Transport drone fuel capacity",
+    setting_type = "runtime-global",
+    default_value = 50,
+    minimum_value = 1,
     maximum_value = 10000
   },
 

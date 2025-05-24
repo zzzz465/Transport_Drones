@@ -1,5 +1,11 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
+
+local function dispatch_delay()
+  return settings.global["truck-departure-delay"].value
+end
 
 local request_depot = {}
 request_depot.metatable = {__index = request_depot}
@@ -49,6 +55,7 @@ function request_depot.new(entity, tags)
     index = tostring(entity.unit_number),
     item = false,
     drones = {},
+    next_spawn_tick = 0,
     mode = request_mode.item,
     fuel_on_the_way = 0
   }
@@ -233,8 +240,12 @@ function request_depot:make_request()
 
   local node_position = self.node_position
   local heuristic = function(depot, count)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > get_drone_fuel_capacity() then
+      return big
+    end
     local amount = min(count, request_size)
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
@@ -399,7 +410,12 @@ function request_depot:get_stack_size()
 end
 
 function request_depot:get_request_size()
-  return self:get_stack_size() * (1 + request_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local size = self:get_stack_size() * (1 + request_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local max_load = settings.global["max-truck-load-size"].value
+  if size > max_load then
+    return max_load
+  end
+  return size
 end
 
 function request_depot:get_output_inventory()
@@ -551,13 +567,14 @@ end
 
 local min = math.min
 function request_depot:dispatch_drone(depot, count)
-
+  if game.tick < self.next_spawn_tick then return end
   local drone = self.transport_drone.new(self, self.item)
   drone:pickup_from_supply(depot, self.item,self.quality, count)
   self:remove_fuel(fuel_amount_per_drone)
 
   self.drones[drone.index] = drone
 
+  self.next_spawn_tick = game.tick + dispatch_delay()
   self:update_sticker()
 end
 
