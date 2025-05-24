@@ -5,7 +5,7 @@ return
     layers =
     {
       {
-        filename = "__Transport_Drones_Meglinge_Fork__/data/entities/transport_depot_circuits/depot-writer.png",
+        filename = "__Transport_Drones_fork_jungooji__/data/entities/transport_depot_circuits/depot-writer.png",
         frame_count = 1,
         height = 102,
         priority = "high",
@@ -43,7 +43,7 @@ return
     layers =
     {
       {
-        filename = "__Transport_Drones_Meglinge_Fork__/data/entities/transport_depot_circuits/depot-writer.png",
+        filename = "__Transport_Drones_fork_jungooji__/data/entities/transport_depot_circuits/depot-writer.png",
         frame_count = 1,
         height = 102,
         priority = "high",
@@ -81,7 +81,7 @@ return
     layers =
     {
       {
-        filename = "__Transport_Drones_Meglinge_Fork__/data/entities/transport_depot_circuits/depot-writer.png",
+        filename = "__Transport_Drones_fork_jungooji__/data/entities/transport_depot_circuits/depot-writer.png",
         frame_count = 1,
         height = 102,
         priority = "high",
@@ -119,7 +119,7 @@ return
     layers =
     {
       {
-        filename = "__Transport_Drones_Meglinge_Fork__/data/entities/transport_depot_circuits/depot-writer.png",
+        filename = "__Transport_Drones_fork_jungooji__/data/entities/transport_depot_circuits/depot-writer.png",
         frame_count = 1,
         height = 102,
         priority = "high",
