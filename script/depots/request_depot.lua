@@ -1,5 +1,7 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local drone_fuel_capacity = shared.drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
 local request_depot = {}
 request_depot.metatable = {__index = request_depot}
@@ -202,11 +204,7 @@ function request_depot:get_minimum_request_size()
 end
 
 
-local distance = function(a, b)
-  local dx = a[1] - b[1]
-  local dy = a[2] - b[2]
-  return ((dx * dx) + (dy * dy)) ^ 0.5
-end
+local distance = util.distance
 
 local big = math.huge
 local min = math.min
@@ -233,8 +231,12 @@ function request_depot:make_request()
 
   local node_position = self.node_position
   local heuristic = function(depot, count)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+      return big
+    end
     local amount = min(count, request_size)
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
@@ -399,7 +401,9 @@ function request_depot:get_stack_size()
 end
 
 function request_depot:get_request_size()
-  return self:get_stack_size() * (1 + request_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local base = self:get_stack_size() * (1 + request_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local max_size = settings.global["max-truck-load-size"].value
+  return math.min(base, max_size)
 end
 
 function request_depot:get_output_inventory()

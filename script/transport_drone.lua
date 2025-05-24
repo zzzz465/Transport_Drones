@@ -61,7 +61,8 @@ local states =
 }
 
 local get_drone_speed = function(force_index)
-  return (0.066 * (1 + transport_technologies.get_transport_speed_bonus(force_index))) --+ (math.random() / 32)
+  local base = settings.global["base-truck-speed"].value
+  return (base * (1 + transport_technologies.get_transport_speed_bonus(force_index)))
 end
 
 local variation_count = shared.variation_count

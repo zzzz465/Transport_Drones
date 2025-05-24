@@ -1,7 +1,8 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local drone_fuel_capacity = shared.drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
-local request_spawn_timeout = 60
 
 local buffer_depot = {}
 buffer_depot.metatable = {__index = buffer_depot}
@@ -261,14 +262,11 @@ function buffer_depot:dispatch_drone(depot, count)
   self.drones[drone.index] = drone
 
   self:update_sticker()
+  self.next_spawn_tick = game.tick + settings.global["truck-departure-delay"].value
 end
 
 
-local distance = function(a, b)
-  local dx = a[1] - b[1]
-  local dy = a[2] - b[2]
-  return ((dx * dx) + (dy * dy)) ^ 0.5
-end
+local distance = util.distance
 
 local big = math.huge
 local min = math.min
@@ -279,6 +277,8 @@ function buffer_depot:make_request()
   local quality = self.type == "fluid" and "" or self.quality
   if not name then return end
   if not quality then return end
+
+  if game.tick < self.next_spawn_tick then return end
 
   if not self:can_spawn_drone() then return end
   if not self:should_order() then return end
@@ -297,7 +297,11 @@ function buffer_depot:make_request()
     if amount < minimum_size then
       return big
     end
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+      return big
+    end
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
@@ -421,7 +425,9 @@ function buffer_depot:get_stack_size()
 end
 
 function buffer_depot:get_request_size()
-  return self:get_stack_size() * (1 + buffer_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local base = self:get_stack_size() * (1 + buffer_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local max_size = settings.global["max-truck-load-size"].value
+  return math.min(base, max_size)
 end
 
 function buffer_depot:get_output_inventory()

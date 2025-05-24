@@ -42,9 +42,6 @@ util.center = function(area)
   return {x = (area.left_top.x + area.right_bottom.x) / 2, y = (area.left_top.y + area.right_bottom.y) / 2}
 end
 
-util.distance = function(p1, p2)
-  return (((p1.x - p2.x) ^ 2) + ((p1.y - p2.y) ^ 2)) ^ 0.5
-end
 
 util.radius = function(area)
   return util.distance(area.right_bottom, area.left_top) / 2
