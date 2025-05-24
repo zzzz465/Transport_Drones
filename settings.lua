@@ -30,6 +30,16 @@ local settings =
 
   {
     type = "double-setting",
+    name = "drone-fuel-capacity",
+    localised_name = "Transport drone fuel capacity",
+    setting_type = "startup",
+    default_value = 50,
+    minimum_value = 1,
+    maximum_value = 10000
+  },
+
+  {
+    type = "double-setting",
     name = "drone-fluid-capacity",
     localised_name = "Transport drone fluid capacity",
     setting_type = "startup",
