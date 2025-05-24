@@ -1,6 +1,8 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
-local request_spawn_timeout = 60
+local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
+local get_truck_departure_delay = shared.get_truck_departure_delay
 
 local fuel_depot = {}
 fuel_depot.metatable = {__index = fuel_depot}
@@ -29,6 +31,12 @@ local get_corpse_position = function(entity)
   local offset = fuel_depot.corpse_offsets[direction]
   return {position.x + offset[1], position.y + offset[2]}
 
+end
+
+local distance = function(a, b)
+  local dx = a[1] - b[1]
+  local dy = a[2] - b[2]
+  return ((dx * dx) + (dy * dy)) ^ 0.5
 end
 
 function fuel_depot.new(entity, tags)
@@ -151,7 +159,7 @@ function fuel_depot:check_drone_validity()
 end
 
 function fuel_depot:can_spawn_drone()
-  return self:get_drone_item_count() > self:get_active_drone_count()
+  return game.tick >= self.next_spawn_tick and (self:get_drone_item_count() > self:get_active_drone_count())
 end
 
 function fuel_depot:get_drone_fluid_capacity()
@@ -166,6 +174,11 @@ function fuel_depot:handle_fuel_request(depot)
     if behavior and behavior.disabled then
       return
     end
+  end
+
+  local dist = distance(self.node_position, depot.node_position)
+  if (dist * 2 * fuel_consumption_per_meter) > get_drone_fuel_capacity() then
+    return
   end
 
   local amount = self:get_fuel_amount()
@@ -183,7 +196,7 @@ function fuel_depot:handle_fuel_request(depot)
 
   self.drones[drone.index] = drone
 
-  self.next_spawn_tick = game.tick + request_spawn_timeout
+  self.next_spawn_tick = game.tick + get_truck_departure_delay()
   self:update_sticker()
 
 end

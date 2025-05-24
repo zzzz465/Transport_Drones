@@ -1,7 +1,9 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
-local request_spawn_timeout = 60
+local get_truck_departure_delay = shared.get_truck_departure_delay
 
 local buffer_depot = {}
 buffer_depot.metatable = {__index = buffer_depot}
@@ -260,6 +262,8 @@ function buffer_depot:dispatch_drone(depot, count)
 
   self.drones[drone.index] = drone
 
+  self.next_spawn_tick = game.tick + get_truck_departure_delay()
+
   self:update_sticker()
 end
 
@@ -297,7 +301,11 @@ function buffer_depot:make_request()
     if amount < minimum_size then
       return big
     end
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > get_drone_fuel_capacity() then
+      return big
+    end
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
@@ -441,7 +449,7 @@ function buffer_depot:get_fuel_amount()
 end
 
 function buffer_depot:can_spawn_drone()
-  return self:get_drone_item_count() > self:get_active_drone_count()
+  return game.tick >= self.next_spawn_tick and (self:get_drone_item_count() > self:get_active_drone_count())
 end
 
 function buffer_depot:get_drone_item_count()
