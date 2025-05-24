@@ -1,5 +1,7 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local drone_fuel_capacity = shared.drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
 local request_depot = {}
 request_depot.metatable = {__index = request_depot}
@@ -233,8 +235,12 @@ function request_depot:make_request()
 
   local node_position = self.node_position
   local heuristic = function(depot, count)
+    local dist = distance(depot.node_position, node_position)
+    if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+      return big
+    end
     local amount = min(count, request_size)
-    return distance(depot.node_position, node_position) - ((amount / request_size) * item_heuristic_bonus)
+    return dist - ((amount / request_size) * item_heuristic_bonus)
   end
 
   local best_buffer
