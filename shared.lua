@@ -11,6 +11,7 @@ data.transport_speed_technology = "transport-drone-speed"
 data.transport_capacity_technology = "transport-drone-capacity"
 data.transport_system_technology = "transport-system"
 
+
 data.fuel_amount_per_drone = settings.startup["fuel-amount-per-drone"].value
 data.get_drone_fuel_capacity = function()
   if settings and settings.global then
@@ -24,5 +25,21 @@ data.drone_pollution_per_second = {pollution = settings.startup["drone-pollution
 data.drone_base_speed = settings.startup["transport-drone-base-speed"].value
 data.truck_departure_delay = settings.startup["truck-departure-delay"].value
 data.max_truck_size = settings.startup["max-truck-size"].value
+
+data.get_drone_fuel_capacity = function()
+  return settings.global["drone-fuel-capacity"].value
+end
+
+data.get_base_truck_speed = function()
+  return settings.global["base-truck-speed"].value
+end
+
+data.get_truck_departure_delay = function()
+  return settings.global["truck-departure-delay"].value
+end
+
+data.get_max_truck_load_size = function()
+  return settings.global["max-truck-load-size"].value
+end
 
 return data

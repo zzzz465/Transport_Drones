@@ -2,6 +2,7 @@ local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
 local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
+local get_truck_departure_delay = shared.get_truck_departure_delay
 
 local function dispatch_delay()
   return settings.global["truck-departure-delay"].value
@@ -162,7 +163,7 @@ function fuel_depot:check_drone_validity()
 end
 
 function fuel_depot:can_spawn_drone()
-  return self:get_drone_item_count() > self:get_active_drone_count()
+  return game.tick >= self.next_spawn_tick and (self:get_drone_item_count() > self:get_active_drone_count())
 end
 
 function fuel_depot:get_drone_fluid_capacity()
@@ -200,7 +201,7 @@ function fuel_depot:handle_fuel_request(depot)
 
   self.drones[drone.index] = drone
 
-  self.next_spawn_tick = game.tick + dispatch_delay()
+  self.next_spawn_tick = game.tick + get_truck_departure_delay()
   self:update_sticker()
 
 end

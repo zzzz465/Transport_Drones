@@ -16,14 +16,14 @@ local settings =
     localised_name = "Base truck speed",
     setting_type = "runtime-global",
     default_value = 0.066,
-    minimum_value = 0.01,
+    minimum_value = 0.001,
     maximum_value = 1
   },
 
   {
     type = "int-setting",
     name = "truck-departure-delay",
-    localised_name = "Truck dispatch delay (ticks)",
+    localised_name = "Truck departure delay",
     setting_type = "runtime-global",
     default_value = 60,
     minimum_value = 0,
@@ -35,9 +35,9 @@ local settings =
     name = "max-truck-load-size",
     localised_name = "Maximum truck load size",
     setting_type = "runtime-global",
-    default_value = 100,
+    default_value = 2000,
     minimum_value = 1,
-    maximum_value = 5000
+    maximum_value = 100000
   },
 
   {

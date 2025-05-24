@@ -2,10 +2,6 @@ local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
 local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
-
-local function dispatch_delay()
-  return settings.global["truck-departure-delay"].value
-end
 
 local request_depot = {}
 request_depot.metatable = {__index = request_depot}
@@ -49,17 +45,15 @@ function request_depot.new(entity, tags)
   entity.active = false
   entity.rotatable = false
 
-  local depot =
-  {
-    entity = entity,
-    index = tostring(entity.unit_number),
-    item = false,
-    drones = {},
-    next_spawn_tick = 0,
-    mode = request_mode.item,
-    fuel_on_the_way = 0,
-    next_spawn_tick = 0
-  }
+  local depot =
+  {
+    entity = entity,
+    index = tostring(entity.unit_number),
+    item = false,
+    drones = {},
+    mode = request_mode.item,
+    fuel_on_the_way = 0
+  }
   setmetatable(depot, request_depot.metatable)
 
   depot:get_corpse()
@@ -412,11 +406,7 @@ end
 
 function request_depot:get_request_size()
   local size = self:get_stack_size() * (1 + request_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
-  local max_load = settings.global["max-truck-load-size"].value
-  if size > max_load then
-    return max_load
-  end
-  return size
+  return math.min(size, shared.get_max_truck_load_size())
 end
 
 function request_depot:get_output_inventory()
@@ -567,18 +557,16 @@ function request_depot:update_circuit_writer()
 end
 
 local min = math.min
-function request_depot:dispatch_drone(depot, count)
-  if game.tick < self.next_spawn_tick then return end
-  local drone = self.transport_drone.new(self, self.item)
-  drone:pickup_from_supply(depot, self.item,self.quality, count)
-  self:remove_fuel(fuel_amount_per_drone)
-
-  self.drones[drone.index] = drone
-
-  self.next_spawn_tick = game.tick + dispatch_delay()
-  self:update_sticker()
-  self.next_spawn_tick = game.tick + departure_delay
-end
+function request_depot:dispatch_drone(depot, count)
+
+  local drone = self.transport_drone.new(self, self.item)
+  drone:pickup_from_supply(depot, self.item,self.quality, count)
+  self:remove_fuel(fuel_amount_per_drone)
+
+  self.drones[drone.index] = drone
+
+  self:update_sticker()
+end
 
 local valid_item_cache = {}
 local is_valid_item = function(item_name)

@@ -3,9 +3,7 @@ local drone_fluid_capacity = shared.drone_fluid_capacity
 local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
-local function dispatch_delay()
-  return settings.global["truck-departure-delay"].value
-end
+local get_truck_departure_delay = shared.get_truck_departure_delay
 
 local buffer_depot = {}
 buffer_depot.metatable = {__index = buffer_depot}
@@ -265,7 +263,8 @@ function buffer_depot:dispatch_drone(depot, count)
 
   self.drones[drone.index] = drone
 
-  self.next_spawn_tick = game.tick + dispatch_delay()
+  self.next_spawn_tick = game.tick + get_truck_departure_delay()
+
   self:update_sticker()
   self.next_spawn_tick = game.tick + departure_delay
 end
@@ -459,7 +458,7 @@ function buffer_depot:get_fuel_amount()
 end
 
 function buffer_depot:can_spawn_drone()
-  return self:get_drone_item_count() > self:get_active_drone_count()
+  return game.tick >= self.next_spawn_tick and (self:get_drone_item_count() > self:get_active_drone_count())
 end
 
 function buffer_depot:get_drone_item_count()
