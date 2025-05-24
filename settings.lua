@@ -64,6 +64,33 @@ local settings =
     setting_type = "startup",
     default_value = 0.005,
     minimum_value = 0
+  },
+  {
+    type = "double-setting",
+    name = "transport-drone-base-speed",
+    localised_name = "Transport drone base speed",
+    setting_type = "startup",
+    default_value = 0.066,
+    minimum_value = 0.01,
+    maximum_value = 1
+  },
+  {
+    type = "int-setting",
+    name = "truck-departure-delay",
+    localised_name = "Truck departure delay",
+    setting_type = "startup",
+    default_value = 60,
+    minimum_value = 0,
+    maximum_value = 3600
+  },
+  {
+    type = "int-setting",
+    name = "max-truck-size",
+    localised_name = "Maximum truck load size",
+    setting_type = "startup",
+    default_value = 0,
+    minimum_value = 0,
+    maximum_value = 10000
   }
 }
 

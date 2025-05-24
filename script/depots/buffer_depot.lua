@@ -3,7 +3,8 @@ local drone_fluid_capacity = shared.drone_fluid_capacity
 local drone_fuel_capacity = shared.drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
-local request_spawn_timeout = 60
+local departure_delay = shared.truck_departure_delay
+local max_truck_size = shared.max_truck_size
 
 local buffer_depot = {}
 buffer_depot.metatable = {__index = buffer_depot}
@@ -263,6 +264,7 @@ function buffer_depot:dispatch_drone(depot, count)
   self.drones[drone.index] = drone
 
   self:update_sticker()
+  self.next_spawn_tick = game.tick + departure_delay
 end
 
 
@@ -281,6 +283,8 @@ function buffer_depot:make_request()
   local quality = self.type == "fluid" and "" or self.quality
   if not name then return end
   if not quality then return end
+
+  if game.tick < self.next_spawn_tick then return end
 
   if not self:can_spawn_drone() then return end
   if not self:should_order() then return end
@@ -427,7 +431,11 @@ function buffer_depot:get_stack_size()
 end
 
 function buffer_depot:get_request_size()
-  return self:get_stack_size() * (1 + buffer_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  local size = self:get_stack_size() * (1 + buffer_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
+  if max_truck_size > 0 and size > max_truck_size then
+    return max_truck_size
+  end
+  return size
 end
 
 function buffer_depot:get_output_inventory()

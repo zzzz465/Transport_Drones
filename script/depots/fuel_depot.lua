@@ -2,7 +2,7 @@ local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
 local drone_fuel_capacity = shared.drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
-local request_spawn_timeout = 60
+local departure_delay = shared.truck_departure_delay
 
 local fuel_depot = {}
 fuel_depot.metatable = {__index = fuel_depot}
@@ -168,6 +168,7 @@ end
 
 function fuel_depot:handle_fuel_request(depot)
   if not self:can_spawn_drone() then return end
+  if game.tick < self.next_spawn_tick then return end
 
   if (self.circuit_writer and self.circuit_writer.valid) then
     local behavior = self.circuit_writer.get_control_behavior()
@@ -196,7 +197,7 @@ function fuel_depot:handle_fuel_request(depot)
 
   self.drones[drone.index] = drone
 
-  self.next_spawn_tick = game.tick + request_spawn_timeout
+  self.next_spawn_tick = game.tick + departure_delay
   self:update_sticker()
 
 end
