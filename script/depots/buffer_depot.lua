@@ -1,10 +1,11 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
-local drone_fuel_capacity = shared.drone_fuel_capacity
+local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
 
-local departure_delay = shared.truck_departure_delay
-local max_truck_size = shared.max_truck_size
+local function dispatch_delay()
+  return settings.global["truck-departure-delay"].value
+end
 
 local buffer_depot = {}
 buffer_depot.metatable = {__index = buffer_depot}
@@ -257,12 +258,14 @@ end
 
 local min = math.min
 function buffer_depot:dispatch_drone(depot, count)
+  if game.tick < self.next_spawn_tick then return end
   local drone = self.transport_drone.new(self, self.item)
   drone:pickup_from_supply(depot, self.item,self.quality, count)
   self:remove_fuel(fuel_amount_per_drone)
 
   self.drones[drone.index] = drone
 
+  self.next_spawn_tick = game.tick + dispatch_delay()
   self:update_sticker()
   self.next_spawn_tick = game.tick + departure_delay
 end
@@ -304,7 +307,7 @@ function buffer_depot:make_request()
       return big
     end
     local dist = distance(depot.node_position, node_position)
-    if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+    if (dist * 2 * fuel_consumption_per_meter) > get_drone_fuel_capacity() then
       return big
     end
     return dist - ((amount / request_size) * item_heuristic_bonus)
@@ -432,8 +435,9 @@ end
 
 function buffer_depot:get_request_size()
   local size = self:get_stack_size() * (1 + buffer_depot.transport_technologies.get_transport_capacity_bonus(self.entity.force.index))
-  if max_truck_size > 0 and size > max_truck_size then
-    return max_truck_size
+  local max_load = settings.global["max-truck-load-size"].value
+  if size > max_load then
+    return max_load
   end
   return size
 end

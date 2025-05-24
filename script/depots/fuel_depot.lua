@@ -1,8 +1,11 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
-local drone_fuel_capacity = shared.drone_fuel_capacity
+local get_drone_fuel_capacity = shared.get_drone_fuel_capacity
 local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
-local departure_delay = shared.truck_departure_delay
+
+local function dispatch_delay()
+  return settings.global["truck-departure-delay"].value
+end
 
 local fuel_depot = {}
 fuel_depot.metatable = {__index = fuel_depot}
@@ -178,7 +181,7 @@ function fuel_depot:handle_fuel_request(depot)
   end
 
   local dist = distance(self.node_position, depot.node_position)
-  if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+  if (dist * 2 * fuel_consumption_per_meter) > get_drone_fuel_capacity() then
     return
   end
 
@@ -197,7 +200,7 @@ function fuel_depot:handle_fuel_request(depot)
 
   self.drones[drone.index] = drone
 
-  self.next_spawn_tick = game.tick + departure_delay
+  self.next_spawn_tick = game.tick + dispatch_delay()
   self:update_sticker()
 
 end

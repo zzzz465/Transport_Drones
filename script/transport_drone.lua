@@ -60,9 +60,12 @@ local states =
   delivering_fuel = 4
 }
 
-local base_speed = shared.drone_base_speed or 0.066
+local function base_speed()
+  return settings.global["base-truck-speed"].value
+end
+
 local get_drone_speed = function(force_index)
-  return (base_speed * (1 + transport_technologies.get_transport_speed_bonus(force_index))) --+ (math.random() / 32)
+  return (base_speed() * (1 + transport_technologies.get_transport_speed_bonus(force_index))) --+ (math.random() / 32)
 end
 
 local variation_count = shared.variation_count
