@@ -12,6 +12,7 @@ data.transport_capacity_technology = "transport-drone-capacity"
 data.transport_system_technology = "transport-system"
 
 data.fuel_amount_per_drone = settings.startup["fuel-amount-per-drone"].value
+data.drone_fuel_capacity = settings.startup["drone-fuel-capacity"].value
 data.fuel_consumption_per_meter = settings.startup["fuel-consumption-per-meter"].value
 data.drone_fluid_capacity = settings.startup["drone-fluid-capacity"].value
 data.drone_pollution_per_second = {pollution = settings.startup["drone-pollution-per-second"].value}

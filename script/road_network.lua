@@ -1,4 +1,5 @@
 local shared = require("shared")
+local util = require("util")
 
 local script_data =
 {
@@ -494,11 +495,7 @@ local distance_squared = function(a, b)
   return (dx * dx) + (dy * dy)
 end
 
-local distance = function(a, b)
-  local dx = a[1] - b[1]
-  local dy = a[2] - b[2]
-  return ((dx * dx) + (dy * dy)) ^ 0.5
-end
+local distance = util.distance
 
 local rect_distance = function(a, b)
   local dx = a[1] - b[1]

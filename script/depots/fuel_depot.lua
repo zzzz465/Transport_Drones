@@ -1,5 +1,8 @@
 local fuel_amount_per_drone = shared.fuel_amount_per_drone
 local drone_fluid_capacity = shared.drone_fluid_capacity
+local drone_fuel_capacity = shared.drone_fuel_capacity
+local fuel_consumption_per_meter = shared.fuel_consumption_per_meter
+local util = require("util")
 local request_spawn_timeout = 60
 
 local fuel_depot = {}
@@ -30,6 +33,8 @@ local get_corpse_position = function(entity)
   return {position.x + offset[1], position.y + offset[2]}
 
 end
+
+local distance = util.distance
 
 function fuel_depot.new(entity, tags)
 
@@ -166,6 +171,11 @@ function fuel_depot:handle_fuel_request(depot)
     if behavior and behavior.disabled then
       return
     end
+  end
+
+  local dist = distance(self.node_position, depot.node_position)
+  if (dist * 2 * fuel_consumption_per_meter) > drone_fuel_capacity then
+    return
   end
 
   local amount = self:get_fuel_amount()
